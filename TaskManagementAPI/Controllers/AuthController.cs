@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TaskManagementAPI.Data;
-using TaskManagementAPI.Models;
 using TaskManagementAPI.DTOs;
+using TaskManagementAPI.Models;
 using TaskManagementAPI.Services;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManagementAPI.Controllers
 {
@@ -87,6 +88,21 @@ namespace TaskManagementAPI.Controllers
                 Role = user.Role,
                 CreatedAt = user.CreatedAt,
                 Token = token //now returning the jwt token
+            });
+        }
+
+        [HttpGet("me")]
+        [Authorize]  // requires authentication!
+        public IActionResult GetCurrentUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var username = User.Identity?.Name;
+
+            return Ok(new
+            {
+                message = "You are authenticated!",
+                userId = userId,
+                username = username
             });
         }
 
